@@ -1,0 +1,11 @@
+{
+  "resourceType": "Observation",
+  "status": "final",
+  "effectiveDateTime": "2022-05-01T12:00:00-05:00",
+  "valueQuantity": {
+    "value": 75,
+    "unit": "beats/minute",
+    "system": "http://unitsofmeasure.org",
+    "code": "/min"
+  }
+}

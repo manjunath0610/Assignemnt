@@ -1,0 +1,895 @@
+{
+	"info": {
+		"_postman_id": "c12d10f4-2b44-40cf-8f84-95f0cf57dc98",
+		"name": "CREATE INTERACTION- Firely Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26688141"
+	},
+	"item": [
+		{
+			"name": "Server Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Tests to check the server basic sanity check \r",
+							"\r",
+							"pm.environment.set(\"baseUrl\",\"https://server.fire.ly/R4\");\r",
+							"// TEST 1: Check the response status code\r",
+							"pm.test(\"Verify if the server is active\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// TEST 2: Check the response body from the server\r",
+							"pm.test(\"Verify that the server responds with the correct response\", function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.have.jsonBody();\r",
+							"});\r",
+							"\r",
+							"// Log the response to the console\r",
+							"console.log(pm.response.json());\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://server.fire.ly/R4/Patient",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a valid resource Patient",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// This test case creates a patient resource and then asserts the responses\r",
+							"\r",
+							"pm.test(\"Verify the status code for the request\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"//Test 2:\r",
+							"pm.test(\"Verify that the response body is valid\", function () {\r",
+							"  const responseJSON = pm.response.json();\r",
+							"  const requestBodyString = pm.request.body.raw;\r",
+							"  const requestJSON = JSON.parse(requestBodyString);\r",
+							"  const responseParams = {\r",
+							"    resourceType: responseJSON.resourceType,\r",
+							"    active: responseJSON.active,\r",
+							"    name: responseJSON.name,\r",
+							"    gender: responseJSON.gender,\r",
+							"    birthDate: responseJSON.birthDate\r",
+							"  };\r",
+							"\r",
+							"  const requestParams = {\r",
+							"    resourceType: requestJSON.resourceType,\r",
+							"    active: requestJSON.active,\r",
+							"    name: requestJSON.name,\r",
+							"    gender: requestJSON.gender,\r",
+							"    birthDate: requestJSON.birthDate\r",
+							"  };\r",
+							"\r",
+							"  // Compare the main parameters of the request and response\r",
+							"  pm.expect(responseParams).to.eql(requestParams, \"Created patient resource does not match request body\");\r",
+							"});\r",
+							"//Test 3\r",
+							"// Extract the patient ID from the response\r",
+							"var responseJson = pm.response.json();\r",
+							"var patientId = responseJson.id;\r",
+							"console.log(patientId);\r",
+							"var _patientId;\r",
+							"//set patient id to global variable for future use\r",
+							"pm.globals.set(\"_patientId\", patientId);\r",
+							"\r",
+							"\r",
+							"// Assert that the patient ID is not empty\r",
+							"pm.test(\"Verify that the patient id is not empty\", function () {\r",
+							"    pm.expect(patientId).to.not.be.empty;\r",
+							"});\r",
+							"// Log the patient ID to the console\r",
+							"console.log(\"Patient ID: \" + pm.globals.get(\"_patientId\"));\r",
+							"console.log(\"Patient ID: \" + patientId);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Patient\",\r\n  \"text\": {\r\n    \"status\": \"generated\",\r\n    \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: f001</p><p><b>identifier</b>: 738472983 (USUAL), ?? (USUAL)</p><p><b>active</b>: true</p><p><b>name</b>: Pieter van de Heuvel </p><p><b>telecom</b>: ph: 0648352638(MOBILE), p.heuvel@gmail.com(HOME)</p><p><b>gender</b>: male</p><p><b>birthDate</b>: 17/11/1944</p><p><b>deceased</b>: false</p><p><b>address</b>: Van Egmondkade 23 Amsterdam 1024 RJ NLD (HOME)</p><p><b>maritalStatus</b>: Getrouwd <span>(Details : {http://terminology.hl7.org/CodeSystem/v3-MaritalStatus code 'M' = 'Married', given as 'Married'})</span></p><p><b>multipleBirth</b>: true</p><h3>Contacts</h3><table><tr><td>-</td><td><b>Relationship</b></td><td><b>Name</b></td><td><b>Telecom</b></td></tr><tr><td>*</td><td>Emergency Contact <span>(Details : {http://terminology.hl7.org/CodeSystem/v2-0131 code 'C' = 'Emergency Contact)</span></td><td>Sarah Abels </td><td>ph: 0690383372(MOBILE)</td></tr></table><h3>Communications</h3><table><tr><td>-</td><td><b>Language</b></td><td><b>Preferred</b></td></tr><tr><td>*</td><td>Nederlands <span>(Details : {urn:ietf:bcp:47 code 'nl' = 'Dutch', given as 'Dutch'})</span></td><td>true</td></tr></table><p><b>managingOrganization</b>: <a>Burgers University Medical Centre</a></p></div>\"\r\n  },\r\n  \"identifier\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\",\r\n      \"value\": \"738472983\"\r\n    },\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\"\r\n    }\r\n  ],\r\n  \"active\": true,\r\n  \"name\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"family\": \"van de Heuvel\",\r\n      \"given\": [\r\n        \"Pieter\"\r\n      ],\r\n      \"suffix\": [\r\n        \"MSc\"\r\n      ]\r\n    }\r\n  ],\r\n  \"telecom\": [\r\n    {\r\n      \"system\": \"phone\",\r\n      \"value\": \"0648352638\",\r\n      \"use\": \"mobile\"\r\n    },\r\n    {\r\n      \"system\": \"email\",\r\n      \"value\": \"p.heuvel@gmail.com\",\r\n      \"use\": \"home\"\r\n    }\r\n  ],\r\n  \"gender\": \"male\",\r\n  \"birthDate\": \"1944-11-17\",\r\n  \"deceasedBoolean\": false,\r\n  \"address\": [\r\n    {\r\n      \"use\": \"home\",\r\n      \"line\": [\r\n        \"Van Egmondkade 23\"\r\n      ],\r\n      \"city\": \"Amsterdam\",\r\n      \"postalCode\": \"1024 RJ\",\r\n      \"country\": \"NLD\"\r\n    }\r\n  ],\r\n  \"maritalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\r\n        \"code\": \"M\",\r\n        \"display\": \"Married\"\r\n      }\r\n    ],\r\n    \"text\": \"Getrouwd\"\r\n  },\r\n  \"multipleBirthBoolean\": true,\r\n  \"contact\": [\r\n    {\r\n      \"relationship\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\r\n              \"code\": \"C\"\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"name\": {\r\n        \"use\": \"usual\",\r\n        \"family\": \"Abels\",\r\n        \"given\": [\r\n          \"Sarah\"\r\n        ]\r\n      },\r\n      \"telecom\": [\r\n        {\r\n          \"system\": \"phone\",\r\n          \"value\": \"0690383372\",\r\n          \"use\": \"mobile\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"communication\": [\r\n    {\r\n      \"language\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"urn:ietf:bcp:47\",\r\n            \"code\": \"nl\",\r\n            \"display\": \"Dutch\"\r\n          }\r\n        ],\r\n        \"text\": \"Nederlands\"\r\n      },\r\n      \"preferred\": true\r\n    }\r\n  ]\r\n\r\n   \r\n  }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/Patient",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Server ignores Meta value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Tests to verify that the server ignores the passed meta values and creates itself\r",
+							"requestBody = JSON.parse(pm.request.body.raw);\r",
+							"var responseJson = pm.response.json();\r",
+							"// Extract the meta value from the resource\r",
+							"const originalmeta = requestBody.meta;\r",
+							" responseBody = JSON.parse(responseBody);\r",
+							"const responsemeta = responseBody.meta;\r",
+							"if (JSON.stringify(originalmeta) === JSON.stringify(responsemeta)) {\r",
+							"  pm.test(\"Meta values are equal\", function () {\r",
+							"    pm.fail(JSON.stringify(originalmeta)).to.equal(JSON.stringify(responsemeta));\r",
+							"  });\r",
+							"} else {\r",
+							"  pm.test(\"Verify that Meta values are not equal\", function () {\r",
+							"    pm.expect(JSON.stringify(originalmeta)).to.not.equal(JSON.stringify(responsemeta));\r",
+							"  });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Patient\",\r\n  \"id\": \"123\",\r\n  \"meta\": {\r\n       \"lastUpdated\": \"2023-04-25T11:11:55.724+00:00\",\r\n        \"versionId\": \"45167daf-dccb-43d7-88b1-24cdcab1be53\"\r\n  },\r\n  \"name\": [\r\n    {\r\n      \"use\": \"official\",\r\n      \"family\": \"Doe\",\r\n      \"given\": [\r\n        \"John\",\r\n        \"Adam\"\r\n      ]\r\n    }\r\n  ],\r\n  \"gender\": \"male\",\r\n  \"birthDate\": \"1985-05-20\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/Patient",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Created Patient resource",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// This test gets the details of the created patient and asserts the details\r",
+							"\r",
+							"\r",
+							"\r",
+							"const patientId = pm.globals.get(\"_patientId\");\r",
+							"\r",
+							"pm.test(\"Verify that the status code is valid\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify that No errors were returned\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.issue).to.not.exist;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify that the patient with correct ID is created\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.id).to.eql(patientId);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Patient/{{_patientId}}",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Patient",
+						"{{_patientId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Server creates unique resource id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test to check if duplicate resource creation is not accepted and server creates a unqiue patient idvar\r",
+							"var patientId = pm.globals.get(\"_patientId\");\r",
+							" responseBody = pm.response.json();\r",
+							" createdId = responseBody.id;\r",
+							" const requestBody = pm.request.body.raw;\r",
+							"var  originalId = JSON.parse(requestBody).id;\r",
+							"    console.log(originalId);\r",
+							"     console.log(createdId);\r",
+							"// Check if the created ID is not the same as the original ID in the request body\r",
+							"pm.test(\"Verify that the server creates unique resource ID\", function () {\r",
+							"   pm.expect(createdId).to.not.equal(originalId);\r",
+							"   \r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Patient\",\r\n  \"id\":\"{{_patientId}}\",\r\n  \"text\": {\r\n    \"status\": \"generated\",\r\n    \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: f001</p><p><b>identifier</b>: 738472983 (USUAL), ?? (USUAL)</p><p><b>active</b>: true</p><p><b>name</b>: Pieter van de Heuvel </p><p><b>telecom</b>: ph: 0648352638(MOBILE), p.heuvel@gmail.com(HOME)</p><p><b>gender</b>: male</p><p><b>birthDate</b>: 17/11/1944</p><p><b>deceased</b>: false</p><p><b>address</b>: Van Egmondkade 23 Amsterdam 1024 RJ NLD (HOME)</p><p><b>maritalStatus</b>: Getrouwd <span>(Details : {http://terminology.hl7.org/CodeSystem/v3-MaritalStatus code 'M' = 'Married', given as 'Married'})</span></p><p><b>multipleBirth</b>: true</p><h3>Contacts</h3><table><tr><td>-</td><td><b>Relationship</b></td><td><b>Name</b></td><td><b>Telecom</b></td></tr><tr><td>*</td><td>Emergency Contact <span>(Details : {http://terminology.hl7.org/CodeSystem/v2-0131 code 'C' = 'Emergency Contact)</span></td><td>Sarah Abels </td><td>ph: 0690383372(MOBILE)</td></tr></table><h3>Communications</h3><table><tr><td>-</td><td><b>Language</b></td><td><b>Preferred</b></td></tr><tr><td>*</td><td>Nederlands <span>(Details : {urn:ietf:bcp:47 code 'nl' = 'Dutch', given as 'Dutch'})</span></td><td>true</td></tr></table><p><b>managingOrganization</b>: <a>Burgers University Medical Centre</a></p></div>\"\r\n  },\r\n  \"identifier\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\",\r\n      \"value\": \"738472983\"\r\n    },\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\"\r\n    }\r\n  ],\r\n  \"active\": true,\r\n  \"name\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"family\": \"van de Heuvel\",\r\n      \"given\": [\r\n        \"Pieter\"\r\n      ],\r\n      \"suffix\": [\r\n        \"MSc\"\r\n      ]\r\n    }\r\n  ],\r\n  \"telecom\": [\r\n    {\r\n      \"system\": \"phone\",\r\n      \"value\": \"0648352638\",\r\n      \"use\": \"mobile\"\r\n    },\r\n    {\r\n      \"system\": \"email\",\r\n      \"value\": \"p.heuvel@gmail.com\",\r\n      \"use\": \"home\"\r\n    }\r\n  ],\r\n  \"gender\": \"male\",\r\n  \"birthDate\": \"1944-11-17\",\r\n  \"deceasedBoolean\": false,\r\n  \"address\": [\r\n    {\r\n      \"use\": \"home\",\r\n      \"line\": [\r\n        \"Van Egmondkade 23\"\r\n      ],\r\n      \"city\": \"Amsterdam\",\r\n      \"postalCode\": \"1024 RJ\",\r\n      \"country\": \"NLD\"\r\n    }\r\n  ],\r\n  \"maritalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\r\n        \"code\": \"M\",\r\n        \"display\": \"Married\"\r\n      }\r\n    ],\r\n    \"text\": \"Getrouwd\"\r\n  },\r\n  \"multipleBirthBoolean\": true,\r\n  \"contact\": [\r\n    {\r\n      \"relationship\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\r\n              \"code\": \"C\"\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"name\": {\r\n        \"use\": \"usual\",\r\n        \"family\": \"Abels\",\r\n        \"given\": [\r\n          \"Sarah\"\r\n        ]\r\n      },\r\n      \"telecom\": [\r\n        {\r\n          \"system\": \"phone\",\r\n          \"value\": \"0690383372\",\r\n          \"use\": \"mobile\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"communication\": [\r\n    {\r\n      \"language\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"urn:ietf:bcp:47\",\r\n            \"code\": \"nl\",\r\n            \"display\": \"Dutch\"\r\n          }\r\n        ],\r\n        \"text\": \"Nederlands\"\r\n      },\r\n      \"preferred\": true\r\n    }\r\n  ]\r\n\r\n   \r\n  }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Patient",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Valid gender value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//This test verfies that the valid gender field is acceptec by server\r",
+							"\r",
+							"pm.test(\"Verfiy that valid Gender field is accepted\", function () {\r",
+							"    var allowedValues = ['male', 'female', 'other', 'unknown']; // allowed values as per FHIR standard https://build.fhir.org/patient-definitions.html\r",
+							"    var requestBody = JSON.parse(pm.request.body.raw); \r",
+							"    var genderValue = requestBody.gender; \r",
+							"    console.log(genderValue);\r",
+							"    pm.expect(allowedValues).to.include(genderValue); // check if the gender value is one of the allowed values\r",
+							"});\r",
+							"pm.test(\"Verify that valid Status code is created \", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Patient\",\r\n  \"id\": \"f001\",\r\n  \"text\": {\r\n    \"status\": \"generated\",\r\n    \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: f001</p><p><b>identifier</b>: 738472983 (USUAL), ?? (USUAL)</p><p><b>active</b>: true</p><p><b>name</b>: Pieter van de Heuvel </p><p><b>telecom</b>: ph: 0648352638(MOBILE), p.heuvel@gmail.com(HOME)</p><p><b>gender</b>: male</p><p><b>birthDate</b>: 17/11/1944</p><p><b>deceased</b>: false</p><p><b>address</b>: Van Egmondkade 23 Amsterdam 1024 RJ NLD (HOME)</p><p><b>maritalStatus</b>: Getrouwd <span>(Details : {http://terminology.hl7.org/CodeSystem/v3-MaritalStatus code 'M' = 'Married', given as 'Married'})</span></p><p><b>multipleBirth</b>: true</p><h3>Contacts</h3><table><tr><td>-</td><td><b>Relationship</b></td><td><b>Name</b></td><td><b>Telecom</b></td></tr><tr><td>*</td><td>Emergency Contact <span>(Details : {http://terminology.hl7.org/CodeSystem/v2-0131 code 'C' = 'Emergency Contact)</span></td><td>Sarah Abels </td><td>ph: 0690383372(MOBILE)</td></tr></table><h3>Communications</h3><table><tr><td>-</td><td><b>Language</b></td><td><b>Preferred</b></td></tr><tr><td>*</td><td>Nederlands <span>(Details : {urn:ietf:bcp:47 code 'nl' = 'Dutch', given as 'Dutch'})</span></td><td>true</td></tr></table><p><b>managingOrganization</b>: <a>Burgers University Medical Centre</a></p></div>\"\r\n  },\r\n  \"identifier\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\",\r\n      \"value\": \"738472983\"\r\n    },\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\"\r\n    }\r\n  ],\r\n  \"active\": true,\r\n  \"name\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"family\": \"van de Heuvel\",\r\n      \"given\": [\r\n        \"Pieter\"\r\n      ],\r\n      \"suffix\": [\r\n        \"MSc\"\r\n      ]\r\n    }\r\n  ],\r\n  \"telecom\": [\r\n    {\r\n      \"system\": \"phone\",\r\n      \"value\": \"0648352638\",\r\n      \"use\": \"mobile\"\r\n    },\r\n    {\r\n      \"system\": \"email\",\r\n      \"value\": \"p.heuvel@gmail.com\",\r\n      \"use\": \"home\"\r\n    }\r\n  ],\r\n  \"gender\": \"male\",\r\n  \"birthDate\": \"1944-11-17\",\r\n  \"deceasedBoolean\": false,\r\n  \"address\": [\r\n    {\r\n      \"use\": \"home\",\r\n      \"line\": [\r\n        \"Van Egmondkade 23\"\r\n      ],\r\n      \"city\": \"Amsterdam\",\r\n      \"postalCode\": \"1024 RJ\",\r\n      \"country\": \"NLD\"\r\n    }\r\n  ],\r\n  \"maritalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\r\n        \"code\": \"M\",\r\n        \"display\": \"Married\"\r\n      }\r\n    ],\r\n    \"text\": \"Getrouwd\"\r\n  },\r\n  \"multipleBirthBoolean\": true,\r\n  \"contact\": [\r\n    {\r\n      \"relationship\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\r\n              \"code\": \"C\"\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"name\": {\r\n        \"use\": \"usual\",\r\n        \"family\": \"Abels\",\r\n        \"given\": [\r\n          \"Sarah\"\r\n        ]\r\n      },\r\n      \"telecom\": [\r\n        {\r\n          \"system\": \"phone\",\r\n          \"value\": \"0690383372\",\r\n          \"use\": \"mobile\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"communication\": [\r\n    {\r\n      \"language\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"urn:ietf:bcp:47\",\r\n            \"code\": \"nl\",\r\n            \"display\": \"Dutch\"\r\n          }\r\n        ],\r\n        \"text\": \"Nederlands\"\r\n      },\r\n      \"preferred\": true\r\n    }\r\n  ]\r\n\r\n   \r\n  }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Patient",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid gender value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Test to check invalid gender details is not accepted by server\r",
+							"//Test 1: Asserting the invalid details\r",
+							"\r",
+							"pm.test(\"Verfiy that status code is received\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Patient\",\r\n  \"id\": \"f001\",\r\n  \"text\": {\r\n    \"status\": \"generated\",\r\n    \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: f001</p><p><b>identifier</b>: 738472983 (USUAL), ?? (USUAL)</p><p><b>active</b>: true</p><p><b>name</b>: Pieter van de Heuvel </p><p><b>telecom</b>: ph: 0648352638(MOBILE), p.heuvel@gmail.com(HOME)</p><p><b>gender</b>: male</p><p><b>birthDate</b>: 17/11/1944</p><p><b>deceased</b>: false</p><p><b>address</b>: Van Egmondkade 23 Amsterdam 1024 RJ NLD (HOME)</p><p><b>maritalStatus</b>: Getrouwd <span>(Details : {http://terminology.hl7.org/CodeSystem/v3-MaritalStatus code 'M' = 'Married', given as 'Married'})</span></p><p><b>multipleBirth</b>: true</p><h3>Contacts</h3><table><tr><td>-</td><td><b>Relationship</b></td><td><b>Name</b></td><td><b>Telecom</b></td></tr><tr><td>*</td><td>Emergency Contact <span>(Details : {http://terminology.hl7.org/CodeSystem/v2-0131 code 'C' = 'Emergency Contact)</span></td><td>Sarah Abels </td><td>ph: 0690383372(MOBILE)</td></tr></table><h3>Communications</h3><table><tr><td>-</td><td><b>Language</b></td><td><b>Preferred</b></td></tr><tr><td>*</td><td>Nederlands <span>(Details : {urn:ietf:bcp:47 code 'nl' = 'Dutch', given as 'Dutch'})</span></td><td>true</td></tr></table><p><b>managingOrganization</b>: <a>Burgers University Medical Centre</a></p></div>\"\r\n  },\r\n  \"identifier\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\",\r\n      \"value\": \"738472983\"\r\n    },\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\"\r\n    }\r\n  ],\r\n  \"active\": true,\r\n  \"name\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"family\": \"van de Heuvel\",\r\n      \"given\": [\r\n        \"Pieter\"\r\n      ],\r\n      \"suffix\": [\r\n        \"MSc\"\r\n      ]\r\n    }\r\n  ],\r\n  \"telecom\": [\r\n    {\r\n      \"system\": \"phone\",\r\n      \"value\": \"0648352638\",\r\n      \"use\": \"mobile\"\r\n    },\r\n    {\r\n      \"system\": \"email\",\r\n      \"value\": \"p.heuvel@gmail.com\",\r\n      \"use\": \"home\"\r\n    }\r\n  ],\r\n  \"gender\": \"invalidGender\",\r\n  \"birthDate\": \"1944-11-17\",\r\n  \"deceasedBoolean\": false,\r\n  \"address\": [\r\n    {\r\n      \"use\": \"home\",\r\n      \"line\": [\r\n        \"Van Egmondkade 23\"\r\n      ],\r\n      \"city\": \"Amsterdam\",\r\n      \"postalCode\": \"1024 RJ\",\r\n      \"country\": \"NLD\"\r\n    }\r\n  ],\r\n  \"maritalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\r\n        \"code\": \"M\",\r\n        \"display\": \"Married\"\r\n      }\r\n    ],\r\n    \"text\": \"Getrouwd\"\r\n  },\r\n  \"multipleBirthBoolean\": true,\r\n  \"contact\": [\r\n    {\r\n      \"relationship\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\r\n              \"code\": \"C\"\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"name\": {\r\n        \"use\": \"usual\",\r\n        \"family\": \"Abels\",\r\n        \"given\": [\r\n          \"Sarah\"\r\n        ]\r\n      },\r\n      \"telecom\": [\r\n        {\r\n          \"system\": \"phone\",\r\n          \"value\": \"0690383372\",\r\n          \"use\": \"mobile\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"communication\": [\r\n    {\r\n      \"language\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"urn:ietf:bcp:47\",\r\n            \"code\": \"nl\",\r\n            \"display\": \"Dutch\"\r\n          }\r\n        ],\r\n        \"text\": \"Nederlands\"\r\n      },\r\n      \"preferred\": true\r\n    }\r\n  ]\r\n\r\n   \r\n  }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Patient",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Server Returns 404 error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify a 404 error is returned when the url is not valid\r",
+							"    pm.test(\"Resource creation returns 404 error\", function () {\r",
+							"        pm.response.to.have.status(404);\r",
+							"    });\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Patient\",\r\n  \"id\": \"f001\",\r\n  \"text\": {\r\n    \"status\": \"generated\",\r\n    \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: f001</p><p><b>identifier</b>: 738472983 (USUAL), ?? (USUAL)</p><p><b>active</b>: true</p><p><b>name</b>: Pieter van de Heuvel </p><p><b>telecom</b>: ph: 0648352638(MOBILE), p.heuvel@gmail.com(HOME)</p><p><b>gender</b>: male</p><p><b>birthDate</b>: 17/11/1944</p><p><b>deceased</b>: false</p><p><b>address</b>: Van Egmondkade 23 Amsterdam 1024 RJ NLD (HOME)</p><p><b>maritalStatus</b>: Getrouwd <span>(Details : {http://terminology.hl7.org/CodeSystem/v3-MaritalStatus code 'M' = 'Married', given as 'Married'})</span></p><p><b>multipleBirth</b>: true</p><h3>Contacts</h3><table><tr><td>-</td><td><b>Relationship</b></td><td><b>Name</b></td><td><b>Telecom</b></td></tr><tr><td>*</td><td>Emergency Contact <span>(Details : {http://terminology.hl7.org/CodeSystem/v2-0131 code 'C' = 'Emergency Contact)</span></td><td>Sarah Abels </td><td>ph: 0690383372(MOBILE)</td></tr></table><h3>Communications</h3><table><tr><td>-</td><td><b>Language</b></td><td><b>Preferred</b></td></tr><tr><td>*</td><td>Nederlands <span>(Details : {urn:ietf:bcp:47 code 'nl' = 'Dutch', given as 'Dutch'})</span></td><td>true</td></tr></table><p><b>managingOrganization</b>: <a>Burgers University Medical Centre</a></p></div>\"\r\n  },\r\n  \"identifier\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\",\r\n      \"value\": \"738472983\"\r\n    },\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\"\r\n    }\r\n  ],\r\n  \"active\": true,\r\n  \"name\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"family\": \"van de Heuvel\",\r\n      \"given\": [\r\n        \"Pieter\"\r\n      ],\r\n      \"suffix\": [\r\n        \"MSc\"\r\n      ]\r\n    }\r\n  ],\r\n  \"telecom\": [\r\n    {\r\n      \"system\": \"phone\",\r\n      \"value\": \"0648352638\",\r\n      \"use\": \"mobile\"\r\n    },\r\n    {\r\n      \"system\": \"email\",\r\n      \"value\": \"p.heuvel@gmail.com\",\r\n      \"use\": \"home\"\r\n    }\r\n  ],\r\n  \"gender\": \"invalidGender\",\r\n  \"birthDate\": \"1944-11-17\",\r\n  \"deceasedBoolean\": false,\r\n  \"address\": [\r\n    {\r\n      \"use\": \"home\",\r\n      \"line\": [\r\n        \"Van Egmondkade 23\"\r\n      ],\r\n      \"city\": \"Amsterdam\",\r\n      \"postalCode\": \"1024 RJ\",\r\n      \"country\": \"NLD\"\r\n    }\r\n  ],\r\n  \"maritalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\r\n        \"code\": \"M\",\r\n        \"display\": \"Married\"\r\n      }\r\n    ],\r\n    \"text\": \"Getrouwd\"\r\n  },\r\n  \"multipleBirthBoolean\": true,\r\n  \"contact\": [\r\n    {\r\n      \"relationship\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\r\n              \"code\": \"C\"\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"name\": {\r\n        \"use\": \"usual\",\r\n        \"family\": \"Abels\",\r\n        \"given\": [\r\n          \"Sarah\"\r\n        ]\r\n      },\r\n      \"telecom\": [\r\n        {\r\n          \"system\": \"phone\",\r\n          \"value\": \"0690383372\",\r\n          \"use\": \"mobile\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"communication\": [\r\n    {\r\n      \"language\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"urn:ietf:bcp:47\",\r\n            \"code\": \"nl\",\r\n            \"display\": \"Dutch\"\r\n          }\r\n        ],\r\n        \"text\": \"Nederlands\"\r\n      },\r\n      \"preferred\": true\r\n    }\r\n  ]\r\n\r\n   \r\n  }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/NA",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"NA"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "InValid birth date for patient",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Tests to verify that invalid birth date field is not accepted by the server \r",
+							"//Test 1:\r",
+							"\r",
+							"const responseJson = pm.response.json();\r",
+							"const birthDate = new Date(responseJson.birthDate);\r",
+							"console.log(birthDate);\r",
+							"const currentDate = new Date();\r",
+							"if (birthDate > currentDate) {\r",
+							"  pm.test(\"Verify that the Birth date is not in the future\", function() {\r",
+							"    pm.expect.fail(`Birth date ${birthDate.toISOString()} is in the future`);\r",
+							"  });\r",
+							"}\r",
+							"// Test 2: check for status code\r",
+							"pm.test(\"Verify that the Response status code is not 201\", function() {\r",
+							"  pm.expect(pm.response.code).to.not.equal(201);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Patient\",\r\n  \"id\": \"f001\",\r\n  \"text\": {\r\n    \"status\": \"generated\",\r\n    \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: f001</p><p><b>identifier</b>: 738472983 (USUAL), ?? (USUAL)</p><p><b>active</b>: true</p><p><b>name</b>: Pieter van de Heuvel </p><p><b>telecom</b>: ph: 0648352638(MOBILE), p.heuvel@gmail.com(HOME)</p><p><b>gender</b>: male</p><p><b>birthDate</b>: 17/11/1944</p><p><b>deceased</b>: false</p><p><b>address</b>: Van Egmondkade 23 Amsterdam 1024 RJ NLD (HOME)</p><p><b>maritalStatus</b>: Getrouwd <span>(Details : {http://terminology.hl7.org/CodeSystem/v3-MaritalStatus code 'M' = 'Married', given as 'Married'})</span></p><p><b>multipleBirth</b>: true</p><h3>Contacts</h3><table><tr><td>-</td><td><b>Relationship</b></td><td><b>Name</b></td><td><b>Telecom</b></td></tr><tr><td>*</td><td>Emergency Contact <span>(Details : {http://terminology.hl7.org/CodeSystem/v2-0131 code 'C' = 'Emergency Contact)</span></td><td>Sarah Abels </td><td>ph: 0690383372(MOBILE)</td></tr></table><h3>Communications</h3><table><tr><td>-</td><td><b>Language</b></td><td><b>Preferred</b></td></tr><tr><td>*</td><td>Nederlands <span>(Details : {urn:ietf:bcp:47 code 'nl' = 'Dutch', given as 'Dutch'})</span></td><td>true</td></tr></table><p><b>managingOrganization</b>: <a>Burgers University Medical Centre</a></p></div>\"\r\n  },\r\n  \"identifier\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\",\r\n      \"value\": \"738472983\"\r\n    },\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\"\r\n    }\r\n  ],\r\n  \"active\": true,\r\n  \"name\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"family\": \"van de Heuvel\",\r\n      \"given\": [\r\n        \"Pieter\"\r\n      ],\r\n      \"suffix\": [\r\n        \"MSc\"\r\n      ]\r\n    }\r\n  ],\r\n  \"telecom\": [\r\n    {\r\n      \"system\": \"phone\",\r\n      \"value\": \"0648352638\",\r\n      \"use\": \"mobile\"\r\n    },\r\n    {\r\n      \"system\": \"email\",\r\n      \"value\": \"p.heuvel@gmail.com\",\r\n      \"use\": \"home\"\r\n    }\r\n  ],\r\n  \"gender\": \"male\",\r\n  \"birthDate\": \"2027-11-17\",\r\n  \"deceasedBoolean\": false,\r\n  \"address\": [\r\n    {\r\n      \"use\": \"home\",\r\n      \"line\": [\r\n        \"Van Egmondkade 23\"\r\n      ],\r\n      \"city\": \"Amsterdam\",\r\n      \"postalCode\": \"1024 RJ\",\r\n      \"country\": \"NLD\"\r\n    }\r\n  ],\r\n  \"maritalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\r\n        \"code\": \"M\",\r\n        \"display\": \"Married\"\r\n      }\r\n    ],\r\n    \"text\": \"Getrouwd\"\r\n  },\r\n  \"multipleBirthBoolean\": true,\r\n  \"contact\": [\r\n    {\r\n      \"relationship\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\r\n              \"code\": \"C\"\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"name\": {\r\n        \"use\": \"usual\",\r\n        \"family\": \"Abels\",\r\n        \"given\": [\r\n          \"Sarah\"\r\n        ]\r\n      },\r\n      \"telecom\": [\r\n        {\r\n          \"system\": \"phone\",\r\n          \"value\": \"0690383372\",\r\n          \"use\": \"mobile\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"communication\": [\r\n    {\r\n      \"language\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"urn:ietf:bcp:47\",\r\n            \"code\": \"nl\",\r\n            \"display\": \"Dutch\"\r\n          }\r\n        ],\r\n        \"text\": \"Nederlands\"\r\n      },\r\n      \"preferred\": true\r\n    }\r\n  ]\r\n\r\n   \r\n  }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Patient",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link Observation resource",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Tests to create observation resource and link to previously created patient in global variable\r",
+							"\r",
+							"//Test 1: Status code check \r",
+							"pm.test(\"Verify that Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"// Test 2: CHeck if location header is present\r",
+							"pm.test(\"Verify that Location header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Location\");\r",
+							"});\r",
+							"    const patientId = pm.globals.get(\"_patientId\");\r",
+							"    const responseJson = pm.response.json();\r",
+							"    const observationId = responseJson.id;\r",
+							"    pm.globals.set(\"observationId\", observationId);\r",
+							"    console.log(observationId)\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"resourceType\": \"Observation\",\r\n    \"status\": \"final\",\r\n    \"code\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"http://loinc.org\",\r\n                \"code\": \"3141-9\",\r\n                \"display\": \"Blood pressure\"\r\n            }\r\n        ]\r\n    },\r\n    \"subject\": {\r\n        \"reference\": \"Patient/{{_patientId}}\"  \r\n    }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Observation",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Observation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Observation Cardinality Test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// THis test verifies that the cardinality details for status field is checked by server\r",
+							"\r",
+							"const patientId = pm.globals.get(\"_patientId\");\r",
+							"pm.test(\"Verify that a valid Observation resource should have a status\", function () {\r",
+							"    const responseBody = pm.response.json();\r",
+							"    pm.expect(responseBody.hasOwnProperty(\"status\")).to.be.true;\r",
+							"});\r",
+							"\r",
+							"// Check that the observation resource status is one of the allowed values\r",
+							"const allowedStatuses = [\"registered\", \"preliminary\", \"final\", \"amended\", \"corrected\", \"cancelled\", \"entered-in-error\", \"unknown\"];\r",
+							"pm.test(\"Verify that a Observation resource status should be one of the allowed values\", function () {\r",
+							"  pm.expect(allowedStatuses).to.include(pm.response.json().status);\r",
+							"});\r",
+							"\r",
+							"// Check that the observation resource does not have a duplicate status\r",
+							"pm.test(\"Verify that a Observation resource should not have a duplicate status\", function () {\r",
+							"  const statuses = pm.response.json().status.split(\",\");\r",
+							"  pm.expect(statuses.length).to.equal(1);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"status\": \"final\",\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://loinc.org\",\r\n        \"code\": \"8302-2\",\r\n        \"display\": \"Height\"\r\n      }\r\n    ],\r\n    \"text\": \"Height\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/example\",\r\n    \"display\": \"Peter James Chalmers\"\r\n  },\r\n  \"valueQuantity\": {\r\n    \"value\": 1.78,\r\n    \"unit\": \"m\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"m\"\r\n  }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Observation",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Observation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cardinality for Observation resource- Code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Test to check if observation resource is not created if mandatory parameters are not provided in Json body\r",
+							"\r",
+							"pm.test(\"Verify that the observation response code field should be invalid\", function () {\r",
+							"    const responseBody = pm.response.json();\r",
+							"    pm.expect(responseBody.hasOwnProperty(\"code\")).to.be.false;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Verify that the POST request should not be successful\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"status\": \"final\",\r\n  \"effectiveDateTime\": \"2022-05-01T12:00:00-05:00\",\r\n  \"valueQuantity\": {\r\n    \"value\": 75,\r\n    \"unit\": \"beats/minute\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"/min\"\r\n  }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Observation",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Observation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link AllergyIntolerance resource",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Tests to create allergyintolerance resource and link to valid patient\r",
+							"\r",
+							"//Test 1: Status code check \r",
+							"pm.test(\"Verify that the Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// Obtain the resource id\r",
+							"    const responseJson = pm.response.json();\r",
+							"    const allergyid = responseJson.id;\r",
+							"    pm.globals.set(\"allergyid\", allergyid);\r",
+							"  \r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"AllergyIntolerance\",\r\n  \"id\": \"example\",\r\n  \"text\": {\r\n    \"status\": \"generated\",\r\n    \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: example</p><p><b>identifier</b>: 49476534</p><p><b>clinicalStatus</b>: Active <span>(Details : {http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical code 'active' = 'Active', given as 'Active'})</span></p><p><b>verificationStatus</b>: Confirmed <span>(Details : {http://terminology.hl7.org/CodeSystem/allergyintolerance-verification code 'confirmed' = 'Confirmed', given as 'Confirmed'})</span></p><p><b>type</b>: allergy</p><p><b>category</b>: food</p><p><b>criticality</b>: high</p><p><b>code</b>: Cashew nuts <span>(Details : {SNOMED CT code '227493005' = 'Cashew nuts', given as 'Cashew nuts'})</span></p><p><b>patient</b>: <a>Patient/example</a></p><p><b>onset</b>: 01/01/2004</p><p><b>recordedDate</b>: 09/10/2014 2:58:00 PM</p><p><b>recorder</b>: <a>Practitioner/example</a></p><p><b>asserter</b>: <a>Patient/example</a></p><p><b>lastOccurrence</b>: 01/06/2012</p><p><b>note</b>: The criticality is high becasue of the observed anaphylactic reaction when challenged with cashew extract.</p><blockquote><p><b>reaction</b></p><p><b>substance</b>: cashew nut allergenic extract Injectable Product <span>(Details : {RxNorm code '1160593' = 'cashew nut allergenic extract Injectable Product', given as 'cashew nut allergenic extract Injectable Product'})</span></p><p><b>manifestation</b>: Anaphylactic reaction <span>(Details : {SNOMED CT code '39579001' = 'Anaphylaxis', given as 'Anaphylactic reaction'})</span></p><p><b>description</b>: Challenge Protocol. Severe reaction to subcutaneous cashew extract. Epinephrine administered</p><p><b>onset</b>: 12/06/2012</p><p><b>severity</b>: severe</p><p><b>exposureRoute</b>: Subcutaneous route <span>(Details : {SNOMED CT code '34206005' = 'Subcutaneous route', given as 'Subcutaneous route'})</span></p></blockquote><blockquote><p><b>reaction</b></p><p><b>manifestation</b>: Urticaria <span>(Details : {SNOMED CT code '64305001' = 'Urticaria', given as 'Urticaria'})</span></p><p><b>onset</b>: 01/01/2004</p><p><b>severity</b>: moderate</p><p><b>note</b>: The patient reports that the onset of urticaria was within 15 minutes of eating cashews.</p></blockquote></div>\"\r\n  },\r\n  \"identifier\": [\r\n    {\r\n      \"system\": \"http://acme.com/ids/patients/risks\",\r\n      \"value\": \"49476534\"\r\n    }\r\n  ],\r\n  \"clinicalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical\",\r\n        \"code\": \"active\",\r\n        \"display\": \"Active\"\r\n      }\r\n    ]\r\n  },\r\n  \"verificationStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-verification\",\r\n        \"code\": \"confirmed\",\r\n        \"display\": \"Confirmed\"\r\n      }\r\n    ]\r\n  },\r\n  \"type\": \"allergy\",\r\n  \"category\": [\r\n    \"food\"\r\n  ],\r\n  \"criticality\": \"high\",\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://snomed.info/sct\",\r\n        \"code\": \"227493005\",\r\n        \"display\": \"Cashew nuts\"\r\n      }\r\n    ]\r\n  },\r\n  \"patient\": {\r\n    \"reference\": \"Patient/{{_patientId}}\"\r\n  },\r\n  \"onsetDateTime\": \"2004\",\r\n  \"recordedDate\": \"2014-10-09T14:58:00+11:00\",\r\n  \"recorder\": {\r\n    \"reference\": \"Practitioner/example\"\r\n  },\r\n  \"asserter\": {\r\n    \"reference\": \"Patient/example\"\r\n  },\r\n  \"lastOccurrence\": \"2012-06\",\r\n  \"note\": [\r\n    {\r\n      \"text\": \"The criticality is high becasue of the observed anaphylactic reaction when challenged with cashew extract.\"\r\n    }\r\n  ],\r\n  \"reaction\": [\r\n    {\r\n      \"substance\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://www.nlm.nih.gov/research/umls/rxnorm\",\r\n            \"code\": \"1160593\",\r\n            \"display\": \"cashew nut allergenic extract Injectable Product\"\r\n          }\r\n        ]\r\n      },\r\n      \"manifestation\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"system\": \"http://snomed.info/sct\",\r\n              \"code\": \"39579001\",\r\n              \"display\": \"Anaphylactic reaction\"\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"description\": \"Challenge Protocol. Severe reaction to subcutaneous cashew extract. Epinephrine administered\",\r\n      \"onset\": \"2012-06-12\",\r\n      \"severity\": \"severe\",\r\n      \"exposureRoute\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://snomed.info/sct\",\r\n            \"code\": \"34206005\",\r\n            \"display\": \"Subcutaneous route\"\r\n          }\r\n        ]\r\n      }\r\n    },\r\n    {\r\n      \"manifestation\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"system\": \"http://snomed.info/sct\",\r\n              \"code\": \"64305001\",\r\n              \"display\": \"Urticaria\"\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"onset\": \"2004\",\r\n      \"severity\": \"moderate\",\r\n      \"note\": [\r\n        {\r\n          \"text\": \"The patient reports that the onset of urticaria was within 15 minutes of eating cashews.\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/AllergyIntolerance",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"AllergyIntolerance"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check if the Observation resource is created",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the previously created Observation resource is retrieved\r",
+							"\r",
+							"pm.test(\"Verify that the Observation resource was created successfully\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Observation/{{observationId}}",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Observation",
+						"{{observationId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check if the AllergyIntolerance resource is created",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if previously created Allerfy intolerance resource is obtained \r",
+							"\r",
+							"pm.test(\"Verify that the Allergy Intolerance resource created successfully\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/AllergyIntolerance/{{allergyid}}",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"AllergyIntolerance",
+						"{{allergyid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create failure when datatype mismatch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify a 400 error is returned when the telecom field is not string\r",
+							"    pm.test(\"Resource creation should return 400 error\", function () {\r",
+							"        pm.response.to.have.status(400);\r",
+							"    });\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Patient\",\r\n  \"text\": {\r\n    \"status\": \"generated\",\r\n    \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: f001</p><p><b>identifier</b>: 738472983 (USUAL), ?? (USUAL)</p><p><b>active</b>: true</p><p><b>name</b>: Pieter van de Heuvel </p><p><b>telecom</b>: ph: 0648352638(MOBILE), p.heuvel@gmail.com(HOME)</p><p><b>gender</b>: male</p><p><b>birthDate</b>: 17/11/1944</p><p><b>deceased</b>: false</p><p><b>address</b>: Van Egmondkade 23 Amsterdam 1024 RJ NLD (HOME)</p><p><b>maritalStatus</b>: Getrouwd <span>(Details : {http://terminology.hl7.org/CodeSystem/v3-MaritalStatus code 'M' = 'Married', given as 'Married'})</span></p><p><b>multipleBirth</b>: true</p><h3>Contacts</h3><table><tr><td>-</td><td><b>Relationship</b></td><td><b>Name</b></td><td><b>Telecom</b></td></tr><tr><td>*</td><td>Emergency Contact <span>(Details : {http://terminology.hl7.org/CodeSystem/v2-0131 code 'C' = 'Emergency Contact)</span></td><td>Sarah Abels </td><td>ph: 0690383372(MOBILE)</td></tr></table><h3>Communications</h3><table><tr><td>-</td><td><b>Language</b></td><td><b>Preferred</b></td></tr><tr><td>*</td><td>Nederlands <span>(Details : {urn:ietf:bcp:47 code 'nl' = 'Dutch', given as 'Dutch'})</span></td><td>true</td></tr></table><p><b>managingOrganization</b>: <a>Burgers University Medical Centre</a></p></div>\"\r\n  },\r\n  \"identifier\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\",\r\n      \"value\": \"738472983\"\r\n    },\r\n    {\r\n      \"use\": \"usual\",\r\n      \"system\": \"urn:oid:2.16.840.1.113883.2.4.6.3\"\r\n    }\r\n  ],\r\n  \"active\": true,\r\n  \"name\": [\r\n    {\r\n      \"use\": \"usual\",\r\n      \"family\": \"van de Heuvel\",\r\n      \"given\": [\r\n        \"Pieter\"\r\n      ],\r\n      \"suffix\": [\r\n        \"MSc\"\r\n      ]\r\n    }\r\n  ],\r\n \"telecom\": [\r\n    {\r\n      \"system\": \"phone\",\r\n      \"value\": 1234567890\r\n    },\r\n    {\r\n      \"system\": \"email\",\r\n      \"value\": \"p.heuvel@gmail.com\",\r\n      \"use\": \"home\"\r\n    }\r\n  ],\r\n  \"gender\": \"male\",\r\n  \"birthDate\": \"1944-11-17\",\r\n  \"deceasedBoolean\": false,\r\n  \"address\": [\r\n    {\r\n      \"use\": \"home\",\r\n      \"line\": [\r\n        \"Van Egmondkade 23\"\r\n      ],\r\n      \"city\": \"Amsterdam\",\r\n      \"postalCode\": \"1024 RJ\",\r\n      \"country\": \"NLD\"\r\n    }\r\n  ],\r\n  \"maritalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\r\n        \"code\": \"M\",\r\n        \"display\": \"Married\"\r\n      }\r\n    ],\r\n    \"text\": \"Getrouwd\"\r\n  },\r\n  \"multipleBirthBoolean\": true,\r\n  \"contact\": [\r\n    {\r\n      \"relationship\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\r\n              \"code\": \"C\"\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"name\": {\r\n        \"use\": \"usual\",\r\n        \"family\": \"Abels\",\r\n        \"given\": [\r\n          \"Sarah\"\r\n        ]\r\n      },\r\n      \"telecom\": [\r\n        {\r\n          \"system\": \"phone\",\r\n          \"value\": \"0690383372\",\r\n          \"use\": \"mobile\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"communication\": [\r\n    {\r\n      \"language\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"urn:ietf:bcp:47\",\r\n            \"code\": \"nl\",\r\n            \"display\": \"Dutch\"\r\n          }\r\n        ],\r\n        \"text\": \"Nederlands\"\r\n      },\r\n      \"preferred\": true\r\n    }\r\n  ]\r\n\r\n   \r\n  }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://server.fire.ly/R4/Patient",
+					"protocol": "https",
+					"host": [
+						"server",
+						"fire",
+						"ly"
+					],
+					"path": [
+						"R4",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,24 @@
+{
+  "resourceType": "Observation",
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "8302-2",
+        "display": "Height"
+      }
+    ],
+    "text": "Height"
+  },
+  "subject": {
+    "reference": "Patient/example",
+    "display": "Peter James Chalmers"
+  },
+  "valueQuantity": {
+    "value": 1.78,
+    "unit": "m",
+    "system": "http://unitsofmeasure.org",
+    "code": "m"
+  }
+}
